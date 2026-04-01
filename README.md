@@ -4,6 +4,8 @@ An end-to-end machine learning project that predicts whether a Citi Bike station
 
 This project follows a structured **CRISP-DM workflow** and is designed with future productionization in mind (AWS, scheduled retraining, API deployment).
 
+The model was then packaged into a [FastAPI](https://qymez2utmp.us-east-1.awsapprunner.com/) application, containerized with Docker, and deployed to AWS.
+
 ---
 
 ## 📌 Project Overview
