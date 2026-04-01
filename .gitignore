@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints/
+
+# Virtual environments
+.env
+.venv/
+venv/
+
+# AWS / credentials
+.aws/
+*.pem
+*.key
+
+# Data files (don’t upload large datasets)
+data/
+*.csv
+*.parquet
+
+# Logs
+*.log
+
+# Mac / Windows
+.DS_Store
+Thumbs.db
+
+# Jupyter
+*.ipynb_checkpoints
+
+# Docker (optional but nice)
+.dockerignore
+
+# Git
+.git/

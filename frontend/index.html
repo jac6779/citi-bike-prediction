@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NYC 311 Resolution Time Predictor</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <section class="card">
+      <h1>NYC 311 Resolution Time Predictor</h1>
+      <p class="subtitle">
+        Estimate 311 complaint handling outcomes from agency, complaint, time, and location features.
+      </p>
+
+      <form id="predict-form">
+        <div class="grid">
+          <label>
+            Agency
+            <select id="agency" name="agency" required>
+              <option value="">Select an agency</option>
+              <option value="DCWP">Department of Consumer and Worker Protection</option>
+              <option value="DEP">Department of Environmental Protection</option>
+              <option value="DHS">Department of Homeless Services</option>
+              <option value="DOB">Department of Buildings</option>
+              <option value="DOE">Department of Education</option>
+              <option value="DOHMH">Department of Health and Mental Hygiene</option>
+              <option value="DOT">Department of Transportation</option>
+              <option value="DPR">Department of Parks &amp; Recreation</option>
+              <option value="DSNY">Department of Sanitation</option>
+              <option value="HPD">Housing Preservation &amp; Development</option>
+              <option value="NYPD">New York City Police Department</option>
+              <option value="OTI">Office of Technology and Innovation</option>
+              <option value="TLC">Taxi and Limousine Commission</option>
+            </select>
+          </label>
+
+          <label>
+            Borough
+            <select id="borough" name="borough" required>
+              <option value="">Select a borough</option>
+              <option value="bronx">Bronx</option>
+              <option value="brooklyn">Brooklyn</option>
+              <option value="manhattan">Manhattan</option>
+              <option value="queens">Queens</option>
+              <option value="staten_island">Staten Island</option>
+            </select>
+          </label>
+
+          <label>
+            Complaint Month
+            <select id="complaint_month" name="complaint_month" required>
+              <option value="">Select month</option>
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+          </label>
+
+          <label>
+            Complaint Day of Week
+            <select id="complaint_day" name="complaint_day" required>
+              <option value="">Select day</option>
+              <option value="0">Monday</option>
+              <option value="1">Tuesday</option>
+              <option value="2">Wednesday</option>
+              <option value="3">Thursday</option>
+              <option value="4">Friday</option>
+              <option value="5">Saturday</option>
+              <option value="6">Sunday</option>
+            </select>
+          </label>
+
+          <label>
+            Complaint Hour
+            <select id="complaint_hr" name="complaint_hr" required>
+              <option value="">Select hour</option>
+              <option value="0">12am</option>
+              <option value="1">1am</option>
+              <option value="2">2am</option>
+              <option value="3">3am</option>
+              <option value="4">4am</option>
+              <option value="5">5am</option>
+              <option value="6">6am</option>
+              <option value="7">7am</option>
+              <option value="8">8am</option>
+              <option value="9">9am</option>
+              <option value="10">10am</option>
+              <option value="11">11am</option>
+              <option value="12">12pm</option>
+              <option value="13">1pm</option>
+              <option value="14">2pm</option>
+              <option value="15">3pm</option>
+              <option value="16">4pm</option>
+              <option value="17">5pm</option>
+              <option value="18">6pm</option>
+              <option value="19">7pm</option>
+              <option value="20">8pm</option>
+              <option value="21">9pm</option>
+              <option value="22">10pm</option>
+              <option value="23">11pm</option>
+            </select>
+          </label>
+
+          <label>
+            Incident ZIP
+            <input
+              list="incident_zip_options"
+              id="incident_zip"
+              name="incident_zip"
+              placeholder="e.g. 11201"
+              required
+            />
+            <datalist id="incident_zip_options">
+              <option value="10001"></option>
+              <option value="10002"></option>
+              <option value="10003"></option>
+              <option value="10004"></option>
+              <option value="10005"></option>
+              <option value="10006"></option>
+              <option value="10007"></option>
+              <option value="10009"></option>
+              <option value="10010"></option>
+              <option value="10011"></option>
+              <option value="10012"></option>
+              <option value="10013"></option>
+              <option value="10014"></option>
+              <option value="10016"></option>
+              <option value="10017"></option>
+              <option value="10018"></option>
+              <option value="10019"></option>
+              <option value="10020"></option>
+              <option value="10021"></option>
+              <option value="10022"></option>
+              <option value="10023"></option>
+              <option value="10024"></option>
+              <option value="10025"></option>
+              <option value="10026"></option>
+              <option value="10027"></option>
+              <option value="10028"></option>
+              <option value="10029"></option>
+              <option value="10030"></option>
+              <option value="10031"></option>
+              <option value="10032"></option>
+              <option value="10033"></option>
+              <option value="10034"></option>
+              <option value="10035"></option>
+              <option value="10036"></option>
+              <option value="10037"></option>
+              <option value="10038"></option>
+              <option value="10039"></option>
+              <option value="10040"></option>
+              <option value="10041"></option>
+              <option value="10044"></option>
+              <option value="10069"></option>
+              <option value="10103"></option>
+              <option value="10111"></option>
+              <option value="10112"></option>
+              <option value="10119"></option>
+              <option value="10128"></option>
+              <option value="10152"></option>
+              <option value="10154"></option>
+              <option value="10162"></option>
+              <option value="10169"></option>
+              <option value="10170"></option>
+              <option value="10171"></option>
+              <option value="10172"></option>
+              <option value="10173"></option>
+              <option value="10177"></option>
+              <option value="10278"></option>
+              <option value="10279"></option>
+              <option value="10280"></option>
+              <option value="10282"></option>
+              <option value="10301"></option>
+              <option value="10302"></option>
+              <option value="10303"></option>
+              <option value="10304"></option>
+              <option value="10305"></option>
+              <option value="10306"></option>
+              <option value="10307"></option>
+              <option value="10308"></option>
+              <option value="10309"></option>
+              <option value="10310"></option>
+              <option value="10312"></option>
+              <option value="10314"></option>
+              <option value="10451"></option>
+              <option value="10452"></option>
+              <option value="10453"></option>
+              <option value="10454"></option>
+              <option value="10455"></option>
+              <option value="10456"></option>
+              <option value="10457"></option>
+              <option value="10458"></option>
+              <option value="10459"></option>
+              <option value="10460"></option>
+              <option value="10461"></option>
+              <option value="10462"></option>
+              <option value="10463"></option>
+              <option value="10464"></option>
+              <option value="10465"></option>
+              <option value="10466"></option>
+              <option value="10467"></option>
+              <option value="10468"></option>
+              <option value="10469"></option>
+              <option value="10470"></option>
+              <option value="10471"></option>
+              <option value="10472"></option>
+              <option value="10473"></option>
+              <option value="10474"></option>
+              <option value="10475"></option>
+              <option value="11001"></option>
+              <option value="11004"></option>
+              <option value="11005"></option>
+              <option value="11040"></option>
+              <option value="11101"></option>
+              <option value="11102"></option>
+              <option value="11103"></option>
+              <option value="11104"></option>
+              <option value="11105"></option>
+              <option value="11106"></option>
+              <option value="11201"></option>
+              <option value="11203"></option>
+              <option value="11204"></option>
+              <option value="11205"></option>
+              <option value="11206"></option>
+              <option value="11207"></option>
+              <option value="11208"></option>
+              <option value="11209"></option>
+              <option value="11210"></option>
+              <option value="11211"></option>
+              <option value="11212"></option>
+              <option value="11213"></option>
+              <option value="11214"></option>
+              <option value="11215"></option>
+              <option value="11216"></option>
+              <option value="11217"></option>
+              <option value="11218"></option>
+              <option value="11219"></option>
+              <option value="11220"></option>
+              <option value="11221"></option>
+              <option value="11222"></option>
+              <option value="11223"></option>
+              <option value="11224"></option>
+              <option value="11225"></option>
+              <option value="11226"></option>
+              <option value="11228"></option>
+              <option value="11229"></option>
+              <option value="11230"></option>
+              <option value="11231"></option>
+              <option value="11232"></option>
+              <option value="11233"></option>
+              <option value="11234"></option>
+              <option value="11235"></option>
+              <option value="11236"></option>
+              <option value="11237"></option>
+              <option value="11238"></option>
+              <option value="11239"></option>
+              <option value="11249"></option>
+              <option value="11354"></option>
+              <option value="11355"></option>
+              <option value="11356"></option>
+              <option value="11357"></option>
+              <option value="11358"></option>
+              <option value="11360"></option>
+              <option value="11361"></option>
+              <option value="11362"></option>
+              <option value="11363"></option>
+              <option value="11364"></option>
+              <option value="11365"></option>
+              <option value="11366"></option>
+              <option value="11367"></option>
+              <option value="11368"></option>
+              <option value="11369"></option>
+              <option value="11370"></option>
+              <option value="11372"></option>
+              <option value="11373"></option>
+              <option value="11374"></option>
+              <option value="11375"></option>
+              <option value="11377"></option>
+              <option value="11378"></option>
+              <option value="11379"></option>
+              <option value="11385"></option>
+              <option value="11411"></option>
+              <option value="11412"></option>
+              <option value="11413"></option>
+              <option value="11414"></option>
+              <option value="11415"></option>
+              <option value="11416"></option>
+              <option value="11417"></option>
+              <option value="11418"></option>
+              <option value="11419"></option>
+              <option value="11420"></option>
+              <option value="11421"></option>
+              <option value="11422"></option>
+              <option value="11423"></option>
+              <option value="11426"></option>
+              <option value="11427"></option>
+              <option value="11428"></option>
+              <option value="11429"></option>
+              <option value="11430"></option>
+              <option value="11432"></option>
+              <option value="11433"></option>
+              <option value="11434"></option>
+              <option value="11435"></option>
+              <option value="11436"></option>
+              <option value="11691"></option>
+              <option value="11692"></option>
+              <option value="11693"></option>
+              <option value="11694"></option>
+              <option value="11697"></option>
+            </datalist>
+          </label>
+
+          <label>
+            Complaint Type
+            <input
+              list="complaint_type_options"
+              id="complaint_type"
+              name="complaint_type"
+              placeholder="Start typing complaint type"
+              required
+            />
+            <datalist id="complaint_type_options">
+              <option value="Abandoned Bike"></option>
+              <option value="Abandoned Vehicle"></option>
+              <option value="Air Quality"></option>
+              <option value="Animal-Abuse"></option>
+              <option value="Asbestos"></option>
+              <option value="Blocked Driveway"></option>
+              <option value="Building/Use"></option>
+              <option value="Consumer Complaint"></option>
+              <option value="Dirty Condition"></option>
+              <option value="Drinking"></option>
+              <option value="Drug Activity"></option>
+              <option value="Encampment"></option>
+              <option value="Food Establishment"></option>
+              <option value="Graffiti"></option>
+              <option value="HEAT/HOT WATER"></option>
+              <option value="Homeless Person Assistance"></option>
+              <option value="Illegal Dumping"></option>
+              <option value="Illegal Parking"></option>
+              <option value="Noise"></option>
+              <option value="Noise - Commercial"></option>
+              <option value="Noise - House of Worship"></option>
+              <option value="Noise - Park"></option>
+              <option value="Noise - Residential"></option>
+              <option value="Noise - Street/Sidewalk"></option>
+              <option value="Noise - Vehicle"></option>
+              <option value="Non-Emergency Police Matter"></option>
+              <option value="Rodent"></option>
+              <option value="Sidewalk Condition"></option>
+              <option value="Smoking or Vaping"></option>
+              <option value="Street Condition"></option>
+              <option value="Street Light Condition"></option>
+              <option value="Street Sign - Damaged"></option>
+              <option value="Street Sign - Dangling"></option>
+              <option value="Street Sign - Missing"></option>
+              <option value="Traffic"></option>
+              <option value="Traffic Signal Condition"></option>
+              <option value="UNSANITARY CONDITION"></option>
+              <option value="Urinating in Public"></option>
+              <option value="Water Quality"></option>
+              <option value="Water System"></option>
+            </datalist>
+          </label>
+
+          <label>
+            Descriptor
+            <input
+              list="descriptor_options"
+              id="descriptor"
+              name="descriptor"
+              placeholder="Start typing descriptor"
+              required
+            />
+            <datalist id="descriptor_options">
+              <option value="Loud Music/Party"></option>
+              <option value="Banging/Pounding"></option>
+              <option value="Engine Idling"></option>
+              <option value="Blocked Hydrant"></option>
+              <option value="Blocked Sidewalk"></option>
+              <option value="Double Parked Blocking Traffic"></option>
+              <option value="Double Parked Blocking Vehicle"></option>
+              <option value="Dirty/Graffiti"></option>
+              <option value="Garbage or Litter"></option>
+              <option value="Human Feces"></option>
+              <option value="Rodents/Mice"></option>
+              <option value="Dog"></option>
+              <option value="Dog Waste"></option>
+              <option value="Drug Activity"></option>
+              <option value="Urinating in Public"></option>
+              <option value="After Hours - Licensed Est"></option>
+              <option value="Car/Truck Music"></option>
+              <option value="Car/Truck Horn"></option>
+              <option value="Blocked Crosswalk"></option>
+              <option value="Condition Attracting Rodents"></option>
+            </datalist>
+          </label>
+
+          <label>
+            Location Type
+            <input
+              list="location_type_options"
+              id="location_type"
+              name="location_type"
+              placeholder="Start typing location type"
+              required
+            />
+            <datalist id="location_type_options">
+              <option value="1-2 Family Dwelling"></option>
+              <option value="3+ Family Apartment Building"></option>
+              <option value="Apartment"></option>
+              <option value="Business"></option>
+              <option value="Commercial"></option>
+              <option value="Commercial Building"></option>
+              <option value="House of Worship"></option>
+              <option value="Office Building"></option>
+              <option value="Park"></option>
+              <option value="Private House"></option>
+              <option value="Private Residence"></option>
+              <option value="RESIDENTIAL BUILDING"></option>
+              <option value="Residence"></option>
+              <option value="Residential"></option>
+              <option value="Residential Building"></option>
+              <option value="Residential Building/House"></option>
+              <option value="Restaurant"></option>
+              <option value="School"></option>
+              <option value="Sidewalk"></option>
+              <option value="Street"></option>
+              <option value="Street/Sidewalk"></option>
+              <option value="Subway Station"></option>
+            </datalist>
+          </label>
+
+          <label>
+            Latitude
+            <input type="number" step="0.000001" id="latitude" name="latitude" required />
+          </label>
+
+          <label>
+            Longitude
+            <input type="number" step="0.000001" id="longitude" name="longitude" required />
+          </label>
+        </div>
+
+        <div class="actions">
+          <button type="submit">Get Prediction</button>
+        </div>
+      </form>
+
+      <section id="result" class="result hidden">
+        <h2>Prediction</h2>
+        <p id="prediction-text"></p>
+        <pre id="raw-response"></pre>
+      </section>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

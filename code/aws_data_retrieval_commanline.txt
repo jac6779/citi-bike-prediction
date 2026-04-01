@@ -1,0 +1,1 @@
+aws s3 cp s3://jac6779-citibike-snapshots-2026/citibike_snapshots/2026/03/2X/ ./snapshots --recursive
