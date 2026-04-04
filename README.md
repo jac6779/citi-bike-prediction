@@ -147,7 +147,7 @@ This project demonstrates:
 
 ## 🔗 Related Projects
 
-* [NYC 311 Complaint Resolution Prediction](https://github.com/jac6779/nyc-311-ml-api)
+* [NYC 311 Complaint Resolution Prediction](https://github.com/jac6779/nyc-311-ml-api)  
 * [Brooklyn Home Price Prediction](https://github.com/jac6779/brooklyn-home-price-api)
 
 These projects complement this work by showcasing:
