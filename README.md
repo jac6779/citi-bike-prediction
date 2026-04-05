@@ -1,168 +1,190 @@
-# 🚲 Citi Bike Dock Availability Prediction
+# 🚲 Citi Bike Availability Prediction Pipeline
 
-An end-to-end machine learning project that predicts whether a Citi Bike station will experience **low dock availability in the next time interval**, enabling better operational awareness and future real-time decisioning.
+End-to-end machine learning pipeline that predicts **low dock availability** at Citi Bike stations using real-time station data, with **scheduled ingestion, weekly retraining, and cloud deployment on AWS**.
 
-This project follows a structured **CRISP-DM workflow** and is designed with future productionization in mind (AWS, scheduled retraining, API deployment).
+## Project Overview
 
-The model was then packaged into a [FastAPI](https://hjpkidba7c.us-east-1.awsapprunner.com/docs#) application, containerized with Docker, and deployed to AWS.
+This project began as a supervised learning workflow for predicting whether a Citi Bike station would experience **low dock availability** in the near future. It was later expanded into a lightweight **MLOps pipeline** that automates data collection, retraining, and model serving.
 
----
+The system is designed to:
 
-## 📌 Project Overview
+- collect fresh Citi Bike station snapshots on a schedule
+- store raw data in AWS S3
+- rebuild training data from recent snapshots
+- retrain the model automatically each week
+- serve predictions through a FastAPI endpoint deployed on AWS
 
-Citi Bike systems frequently experience imbalances where stations become either:
+## Business Problem
 
-* **Full (no docks available)** or
-* **Empty (no bikes available)**
+Bike-share systems can become operationally inefficient when stations run low on available docks. Predicting these shortages in advance can help support station rebalancing, improve rider experience, and reduce friction during peak usage periods.
 
-This project focuses on predicting **low dock availability (≤10% capacity)** at a given station in the near future.
+## Target
 
-### 🎯 Target Variable
+Binary classification target:
 
-Binary classification:
+- `1` = station is projected to have **low dock availability**
+- `0` = station is **not** projected to have low dock availability
 
-* `1` → Low dock availability (≤10% of station capacity)
-* `0` → Otherwise
+In this project, low dock availability is defined as **10% or less of total station capacity** remaining as open docks.
 
----
+## Data Sources
 
-## 📊 Data Sources
+This project uses Citi Bike GBFS feeds, including:
 
-* Citi Bike GBFS snapshots:
+- `station_information.json`
+- `station_status.json`
 
-  * `station_status` (real-time availability)
-  * `station_information` (station metadata)
+These feeds provide station metadata and real-time operational availability data, which are combined into a modeling dataset.
 
-* Additional engineered features:
+Additional engineered features include:
 
-  * Temporal features (hour, weekday)
-  * Station-level characteristics (capacity, location)
-  * Distance to nearest MTA station
+- station capacity
+- station latitude and longitude
+- distance to nearest MTA station
+- current dock availability percentage
+- hour of day
+- day of week
 
----
+## Notebook Workflow
 
-## 🧱 Project Structure (CRISP-DM)
+The notebooks document the end-to-end analytical workflow:
 
-### 1️⃣ Preprocessing (`01_citi_bike_prediction_preprocessing.ipynb`)
+### 1. Preprocessing
+`01_citi_bike_prediction_preprocessing.ipynb`
 
-* Aggregates raw JSON snapshots into a structured dataset
-* Cleans and filters NYC stations
-* Merges station status with station metadata
-* Handles missing and invalid values
-* Converts timestamps and prepares time-based features
+- combines raw station snapshots into a structured dataset
+- merges station status with station metadata
+- cleans columns and standardizes timestamps
+- prepares the base table used in analysis
 
----
+### 2. Exploratory Data Analysis
+`02_citi_bike_prediction_exploratory_analysis.ipynb`
 
-### 2️⃣ Exploratory Data Analysis (`02_citi_bike_prediction_exploratory_analysis.ipynb`)
+- examines station availability patterns
+- explores hourly and weekday behavior
+- reviews low-availability frequency and class balance
+- identifies trends that inform feature engineering
 
-* Distribution analysis of bike/dock availability
-* Temporal patterns (hourly, weekday trends)
-* Station-level variability
-* Early signal identification for low dock conditions
+### 3. Feature Engineering
+`03_citi_bike_prediction_feature_engineering.ipynb`
 
----
+- sorts station snapshots chronologically
+- creates future-looking targets using grouped time shifting
+- engineers time-based and station-level features
+- removes or avoids identifiers that could weaken generalization
 
-### 3️⃣ Feature Engineering (`03_citi_bike_prediction_feature_engineering.ipynb`)
+### 4. Modeling
+`04_citi_bike_prediction_modeling.ipynb`
 
-* Creates target variable using **future availability via groupby + shift**
-* Engineers key features:
+- compares Logistic Regression, Random Forest, XGBoost, and TensorFlow
+- evaluates model performance using classification metrics
+- emphasizes performance under class imbalance
+- selects the best candidate for deployment
 
-  * `current_dock_pct`
-  * `future_dock_pct`
-  * Time-based variables (hour, weekday)
-* Handles feature selection decisions:
+## Modeling Approach
 
-  * Removes identifiers (e.g., station_id)
-  * Evaluates categorical vs continuous variables
-* Sorts data chronologically for proper train/test splitting
+The project compares several model types to balance interpretability, predictive performance, and deployment practicality:
 
----
+- **Logistic Regression** for a clean baseline
+- **Random Forest** for nonlinear tabular modeling
+- **XGBoost** for boosted tree performance
+- **TensorFlow Neural Network** as an experimental deep learning benchmark
 
-### 4️⃣ Modeling (`04_citi_bike_prediction_modeling.ipynb`)
+Evaluation focused on standard classification metrics such as:
 
-* Implements and compares multiple models:
+- precision
+- recall
+- F1 score
+- ROC-AUC
+- PR-AUC
 
-  * Logistic Regression
-  * Random Forest
-  * XGBoost
-  * Neural Network (TensorFlow, experimental)
+Because this is an imbalanced classification problem, special attention was given to how well models identify the positive class rather than relying only on accuracy.
 
-* Evaluation metrics:
+## AWS / MLOps Architecture
 
-  * Precision
-  * Recall
-  * F1 Score
-  * ROC-AUC
+This project now includes a cloud-based retraining and deployment workflow using AWS services:
 
-* Key focus:
+- **EventBridge** schedules ingestion and retraining jobs
+- **Lambda** pulls Citi Bike snapshot data from the GBFS API
+- **S3** stores raw snapshots and training inputs
+- **CodeBuild** runs the weekly retraining workflow
+- **ECR** stores the Docker image for the inference API
+- **App Runner** hosts the FastAPI prediction service
 
-  * Handling class imbalance
-  * Comparing model performance across approaches
-  * Selecting best model for future deployment
+## Weekly Retraining Workflow
 
----
+The retraining workflow is designed to keep the model refreshed with recent operating patterns:
 
-## 🤖 Modeling Approach
+1. Citi Bike snapshot data is collected on a recurring schedule
+2. Raw JSON snapshots are written to S3
+3. A weekly training job rebuilds the training dataset from recent files
+4. The model is retrained automatically
+5. Updated artifacts are prepared for deployment
+6. The containerized API can be redeployed with the refreshed model
 
-This project intentionally compares:
+This shifts the project from a one-time modeling exercise to an **automated ML system**.
 
-* **Interpretable models** → Logistic Regression
-* **Tree-based models** → Random Forest, XGBoost
-* **Deep learning (optional)** → Neural Network
+## API Deployment
 
-This mirrors real-world workflows where simpler models often outperform or complement deep learning depending on the problem.
+The prediction service is packaged as a **FastAPI application** inside a **Docker container** and deployed through AWS.
 
----
+The deployment workflow includes:
 
-## ⚙️ Key Techniques
+- building the image locally
+- tagging with a versioned ECR image tag
+- pushing the image to Amazon ECR
+- updating the App Runner service to use the latest model-serving image
 
-* Time-series aware feature engineering using `.groupby().shift()`
-* Chronological train/test split (no leakage)
-* Feature scaling where appropriate
-* Model comparison framework across multiple algorithms
+## Repository Structure
 
----
+```text
+citi-bike-prediction/
+├── app/
+│   ├── main.py
+│   └── feature_builder.py
+├── training/
+│   ├── build_training_data.py
+│   └── train_model.py
+├── models/
+├── notebooks/
+│   ├── 01_citi_bike_prediction_preprocessing.ipynb
+│   ├── 02_citi_bike_prediction_exploratory_analysis.ipynb
+│   ├── 03_citi_bike_prediction_feature_engineering.ipynb
+│   └── 04_citi_bike_prediction_modeling.ipynb
+├── Dockerfile
+├── buildspec.yml
+└── README.md
+```
 
-## 🚀 Future Improvements (Planned)
+## Key Skills Demonstrated
 
-* Automated data ingestion via AWS (Lambda + S3)
-* Scheduled model retraining (monthly pipeline)
-* API deployment (FastAPI + Docker)
-* Real-time predictions
-* Dashboard integration (Tableau / Athena)
+- machine learning for tabular classification
+- time-based feature engineering
+- leakage-aware target construction
+- model comparison and evaluation
+- FastAPI model serving
+- Docker containerization
+- AWS scheduling, storage, and deployment
+- lightweight MLOps workflow design
 
----
+## Future Improvements
 
-## 📈 Why This Project Matters
+Potential next steps include:
 
-This project demonstrates:
+- more frequent retraining schedules
+- automated model evaluation reporting
+- model version tracking
+- drift monitoring
+- CI/CD improvements for fully automated redeployment
 
-* End-to-end ML workflow
-* Real-world data challenges (time dependency, imbalance)
-* Feature engineering for temporal prediction
-* Model comparison and evaluation
-* Readiness for production deployment
+## Related Projects
 
----
+- [NYC 311 ML API](https://github.com/jac6779/nyc-311-ml-api)
+- [Brooklyn Home Price API](https://github.com/jac6779/brooklyn-home-price-api)
 
-## 🔗 Related Projects
+## Author
 
-* [NYC 311 Complaint Resolution Prediction](https://github.com/jac6779/nyc-311-ml-api)  
-* [Brooklyn Home Price Prediction](https://github.com/jac6779/brooklyn-home-price-api)
+**Justin Cox**
 
-These projects complement this work by showcasing:
-
-* Tabular ML modeling
-* API deployment
-* Production-oriented workflows
-
----
-
-## 👤 Author
-
-Justin Cox
-
-GitHub: https://github.com/jac6779
-LinkedIn: https://linkedin.com/in/justincox1
-
----
+- GitHub: [jac6779](https://github.com/jac6779)
+- LinkedIn: [justincox1](https://www.linkedin.com/in/justincox1)
