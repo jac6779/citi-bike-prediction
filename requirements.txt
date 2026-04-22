@@ -6,3 +6,6 @@ scipy
 scikit-learn
 joblib
 feature-engine
+requests
+boto3
+pyarrow

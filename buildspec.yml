@@ -1,0 +1,18 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - echo "Installing dependencies..."
+      - pip install pandas numpy scikit-learn joblib feature-engine boto3 requests pyarrow
+  build:
+    commands:
+      - echo "Step 1: Building Training Data..."
+      - python training/build_training_data.py
+      - echo "Step 2: Training Model and Deploying..."
+      - python training/train_model.py
+  post_build:
+    commands:
+      - echo "Pipeline completed on `date`"

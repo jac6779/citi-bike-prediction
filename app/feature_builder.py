@@ -1,4 +1,3 @@
-import joblib
 import pandas as pd
 
 MODEL_FEATURES = [
@@ -10,16 +9,11 @@ MODEL_FEATURES = [
     "snapshot_weekday"
 ]
 
-preprocessor = joblib.load("models/preprocessor.joblib")
 
-
-def build_features(input_data: dict):
+def build_features(input_data: dict, preprocessor):
     df = pd.DataFrame([input_data])
-
-    # enforce the same raw feature set and order used in training
     df = df[MODEL_FEATURES]
 
     # apply the fitted preprocessor from training
     X_processed = preprocessor.transform(df)
-
     return X_processed

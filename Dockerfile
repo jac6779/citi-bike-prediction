@@ -1,15 +1,13 @@
 FROM python:3.11-slim
 
-WORKDIR /app
+WORKDIR /app 
 
-COPY requirements.txt .
+COPY requirements.txt . 
+RUN pip install --no-cache-dir -r requirements.txt 
 
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY app/main.py .
-COPY app/feature_builder.py .
-COPY models ./models
+COPY app ./app 
+# REMOVED: COPY training, models, artifacts, and data 
 
 EXPOSE 8080
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
