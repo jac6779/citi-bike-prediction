@@ -2,11 +2,10 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field
 import joblib
 import boto3
-import os
 from app.feature_builder import build_features
 
 # Configuration
-BUCKET_NAME = "jac6779-citibike-snapshots-2026" 
+BUCKET_NAME = "jac6779-citibike-snapshots-2026"
 MODEL_KEY = "citibike_snapshots/models/model.joblib"
 PREPROCESSOR_KEY = "citibike_snapshots/models/preprocessor.joblib"
 
@@ -20,7 +19,7 @@ app = FastAPI(
 )
 
 def load_artifacts_from_s3():
-    global model_s3_key
+    global model_s3_key, model_version
 
     s3 = boto3.client("s3")
     try:
@@ -29,6 +28,9 @@ def load_artifacts_from_s3():
         s3.download_file(BUCKET_NAME, PREPROCESSOR_KEY, LOCAL_PREPROCESSOR_PATH)
 
         model_s3_key = MODEL_KEY
+
+        metadata = s3.head_object(Bucket=BUCKET_NAME, Key=MODEL_KEY)
+        model_version = metadata["LastModified"].strftime("%Y-%m-%d %H:%M")
 
         loaded_model = joblib.load(LOCAL_MODEL_PATH)
         loaded_preprocessor = joblib.load(LOCAL_PREPROCESSOR_PATH)
@@ -43,6 +45,7 @@ def load_artifacts_from_s3():
 model = None
 preprocessor = None
 model_s3_key = MODEL_KEY
+model_version = None
 
 @app.on_event("startup")
 def startup_event():
@@ -75,16 +78,17 @@ class PredictionRequest(BaseModel):
 @app.get("/health")
 def health():
     return {
-    "status": "ok",
-    "model_loaded": model is not None,
-    "model_s3_key": model_s3_key
+        "status": "ok",
+        "model_loaded": model is not None,
+        "model_s3_key": model_s3_key,
+        "model_version": model_version
     }
 
 
 @app.post("/predict")
 def predict(payload: PredictionRequest):
     try:
-        input_dict = payload.model_dump()   # Pydantic v2 style
+        input_dict = payload.model_dump()
         processed_features = build_features(input_dict, preprocessor)
 
         if hasattr(model, "predict_proba"):
@@ -93,8 +97,9 @@ def predict(payload: PredictionRequest):
             prob = float(model.predict(processed_features)[0])
 
         return {
-            "Probability of lock dock availability within next 30 minutes": round(prob, 3),
-            "model_s3_key": model_s3_key
+            "Probability of low dock availability within next 30 minutes": round(prob, 3),
+            "model_s3_key": model_s3_key,
+            "model_version": model_version
         }
     except Exception as e:
         import traceback
