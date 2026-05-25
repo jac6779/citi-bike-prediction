@@ -128,7 +128,7 @@ This shifts the project from a one-time modeling exercise to an **automated ML s
 
 The prediction service is packaged as a **FastAPI application** inside a **Docker container** and deployed through AWS.
 
-**Live FastAPI Docs:** [Citi Bike Prediction API](https://er8i8uv8hc.us-east-1.awsapprunner.com/docs#/default/predict_predict_post)
+**Live FastAPI Docs:** [Citi Bike Prediction API](https://hjpkidba7c.us-east-1.awsapprunner.com/docs#/)
 
 The deployment workflow includes:
 
