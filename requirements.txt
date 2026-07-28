@@ -9,3 +9,4 @@ feature-engine
 requests
 boto3
 pyarrow
+xgboost
